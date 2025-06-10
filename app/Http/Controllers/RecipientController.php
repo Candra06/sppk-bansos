@@ -169,7 +169,44 @@ class RecipientController extends Controller
 
     public function submitEvaluation(Request $request, $id)
     {
+        // return $request;
+        try {
+            DB::beginTransaction();
+            $list = [];
+            $highest = [];
+            $bobot = 0;
+            $i = 0;
+            for ($i=0; $i < count($request->nilai); $i++) {
+                $variabel = $request->variabel_id[$i];
+                $nilai = $request->nilai[$i];
+                # code...
+                $himpunan = Fungsi::where('himpunan_id', $nilai)->first();
+                $bobot += doubleval($himpunan->bobot);
+                RecipientEvaluation::create([ // menyimpan history penilaian
+                    'recipient_id' => $id,
+                    'variabel_id' => $variabel,
+                    'himpunan_id' => $nilai,
+                    'bobot' => doubleval($himpunan->bobot),
+                ]);
+            }
 
+            $total = $bobot/count($request->nilai);
+
+            Recipient::where('id', $id)->update(['bobot' => doubleval($bobot)]); // mengubah bilai bobot pada data karyawan
+            DB::commit();
+
+            return redirect('recipient')->with('success', 'Berhasil memberikan penilaian');
+            // return ['total bobot asli' => $totalBobot, 'total bobot' => $total, 'bobot tiap variabel' => $highest, 'input' => $request->nilai, 'tmp total' => $dataTotal];
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+            return back()->with('error', $th->getMessage());
+
+        }
+    }
+    public function submitEvaluationFuzzy(Request $request, $id)
+    {
+        return $request;
         try {
             DB::beginTransaction();
             $list = [];
