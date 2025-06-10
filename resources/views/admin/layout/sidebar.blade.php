@@ -60,9 +60,9 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a href="#dashboard">
+                    <a href="/recipient">
                         <i class="fas fa-users"></i>
-                        <p>Warga</p>
+                        <p>Penerima</p>
                         {{-- <span class="caret"></span> --}}
                     </a>
                 </li>

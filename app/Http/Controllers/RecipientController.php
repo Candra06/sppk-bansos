@@ -27,24 +27,26 @@ class RecipientController extends Controller
     public function index()
     {
         //
-        // $data = Recipient::all();
-        $title = 'List Data Warga';
+        $data = Recipient::all();
+        $title = 'Penerima';
 
-        return view('admin.employee.index', compact('title'));
+        return view('admin.recipient.index', compact('title','data'));
     }
 
     public function create()
     {
         //
-        $title = 'Tambah Data Pegawai';
+        $title = 'Penerima';
+        $subtitle= 'Tambah Data ';
         $data = (object) [
             'nama' => '',
-            'birthDate' => '',
+            'nik' => '',
             'address' => '',
+            'gender' => '',
             'type' => 'create',
-            'route' => route('employee.store')
+            'route' => route('recipient.store')
         ];
-        return view('admin.employee.form', compact('title', 'data'));
+        return view('admin.recipient.form', compact('title','subtitle', 'data'));
     }
 
     public function store(Request $request)
@@ -54,17 +56,19 @@ class RecipientController extends Controller
         try {
             $request->validate([
                 'nama' => 'required',
-                'birthDate' => 'required',
+                'nik' => 'required',
+                'gender' => 'required',
                 'address' => 'required',
             ]);
             Recipient::create([
                 'nama' => $request->nama,
-                'birthDate' => $request->birthDate,
+                'nik' => $request->nik,
+                'gender' => $request->gender,
                 'address' => $request->address,
                 'bobot' => 0,
             ]);
 
-            return redirect('employee')->with('Berhasil menambah data!');
+            return redirect('recipient')->with('Berhasil menambah data!');
         } catch (\Throwable $th) {
             return $th;
             return back()->with('failed', 'Gagal menambah data!' . $th->getMessage());
@@ -80,29 +84,32 @@ class RecipientController extends Controller
     {
         //
         $data = Recipient::where('id', $id)->first();
-        $data->route = route('employee.update', $id);
-        $title = 'Edit Data Pegawai';
-        return view('admin.employee.form', compact('data', 'title'));
+        $data->route = route('recipient.update', $id);
+        $title = 'Penerima';
+        $subtitle = 'Ubah Data ';
+        // return $data;
+        return view('admin.recipient.form', compact('data', 'title', 'subtitle'));
     }
 
     public function update(Request $request, $id)
     {
         //
         $request->validate([
-            'nama' => 'required',
-            'birthDate' => 'required',
-            'address' => 'required',
-
-        ]);
+                'nama' => 'required',
+                'nik' => 'required',
+                'gender' => 'required',
+                'address' => 'required',
+            ]);
         try {
             $data = ([
                 'nama' => $request->nama,
-                'birthDate' => $request->birthDate,
+                'nik' => $request->nik,
+                'gender' => $request->gender,
                 'address' => $request->address,
             ]);
 
             Recipient::where('id', $id)->update($data);
-            return redirect('employee')->with('success', 'Berhasil mengubah data!');
+            return redirect('recipient')->with('success', 'Berhasil mengubah data!');
         } catch (\Throwable $th) {
             return back()->with('failed', 'Gagal mengubah data!');
         }
@@ -111,35 +118,50 @@ class RecipientController extends Controller
     public function show($id)
     {
         $data = Recipient::where('id', $id)->first();
-        $data->route = route('employee.index');
+        $data->route = route('recipient.index');
         $data->type = 'detail';
-        $title = 'Detail Data Pegawai';
+        $title = 'Penerima';
+        $subtitle = 'Detail Data ';
         $project = Recipient::all();
 
-        $evaluation = RecipientEvaluation::where('employee_id', $id)->get();
+        $evaluation = RecipientEvaluation::where('recipient_id', $id)->get();
 
-        return view('admin.employee.form', compact('id', 'data', 'title', 'evaluation'));
+        return view('admin.recipient.form', compact('id', 'data', 'title', 'subtitle', 'evaluation'));
     }
 
     public function destroy($id)
     {
         //
         Recipient::find($id)->delete();
-        return redirect('employee')->with('success', 'Berhasil hapus data!');
+        return redirect('recipient')->with('success', 'Berhasil hapus data!');
     }
 
     public function formPenilaian($id)
     {
         try {
-            $data = Variabel::all();
-            $title = 'Tambah Penilaian Pegawai';
+            $variabel = Variabel::all();
+            $title = 'Penerima';
+            $subtitle='Tambah Penilaian ';
+             $grouping = [];
+            foreach ($variabel as $item) {
+                $himpunan = Himpunan::with('fungsi')->where('variabel_id', $item->id)->get();
+                $tmp = [
+                    'id' => $item->id,
+                    'variabel' => $item->variabel,
+                    'variabel_kode' => $item->kode,
+                    'himpunan' => $himpunan,
+                ];
+                array_push($grouping, $tmp);
+            }
             $data = (object) [
                 'data' => Recipient::where('id', $id)->first(),
-                'variabel' => $data,
+                'variabel' => $grouping,
                 'type' => 'create',
                 'route' => url('submitEvaluation/' . $id)
             ];
-            return view('admin.employee.evaluation', compact('data', 'title'));
+
+            // return $data;
+            return view('admin.recipient.evaluation', compact('data', 'title','subtitle'));
         } catch (\Throwable $th) {
             //throw $th;
         }
@@ -209,7 +231,7 @@ class RecipientController extends Controller
                 $dataTotal[] = $tmpBobot;
                 $total += doubleval($tmpBobot); // menjumlahkan total nilai bobot
                 RecipientEvaluation::create([ // menyimpan history penilaian
-                    'employee_id' => $id,
+                    'recipient_id' => $id,
                     'variabel_id' => $request->variabel_id[$i],
                     'himpunan_id' => $highest[$i]['himpunan_id'],
                     'bobot' => round(doubleval($tmpBobot)),
@@ -218,7 +240,7 @@ class RecipientController extends Controller
             Recipient::where('id', $id)->update(['bobot' => doubleval($total/$totalBobot)]); // mengubah bilai bobot pada data karyawan
             DB::commit();
 
-            return redirect('employee')->with('success', 'Berhasil memberikan penilaian');
+            return redirect('recipient')->with('success', 'Berhasil memberikan penilaian');
             // return ['total bobot asli' => $totalBobot, 'total bobot' => $total, 'bobot tiap variabel' => $highest, 'input' => $request->nilai, 'tmp total' => $dataTotal];
         } catch (\Throwable $th) {
 

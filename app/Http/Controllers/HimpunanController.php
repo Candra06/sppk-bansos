@@ -49,8 +49,86 @@ class HimpunanController extends Controller
     public function store(Request $request)
     {
         {
-
-            // dd($request);
+            // $dummy = [
+            //             [
+            //                 'variabel_id' => 5,
+            //                 'himpunan' => 'Tidak Layak/Rendah',
+            //             ],
+            //             [
+            //                 'variabel_id' => 5,
+            //                 'himpunan' => 'Sedang',
+            //             ],
+            //             [
+            //                 'variabel_id' => 5,
+            //                 'himpunan' => 'Layak/Tinggi',
+            //             ],
+            //             [
+            //                 'variabel_id' => 6,
+            //                 'himpunan' => 'Tidak Layak/Rendah',
+            //             ],
+            //             [
+            //                 'variabel_id' => 6,
+            //                 'himpunan' => 'Sedang',
+            //             ],
+            //             [
+            //                 'variabel_id' => 6,
+            //                 'himpunan' => 'Layak/Tinggi',
+            //             ],
+            //             [
+            //                 'variabel_id' => 7,
+            //                 'himpunan' => 'Tidak Layak/Rendah',
+            //             ],
+            //             [
+            //                 'variabel_id' => 7,
+            //                 'himpunan' => 'Sedang',
+            //             ],
+            //             [
+            //                 'variabel_id' => 7,
+            //                 'himpunan' => 'Layak/Tinggi',
+            //             ],
+            //             [
+            //                 'variabel_id' => 8,
+            //                 'himpunan' => 'Tidak Layak/Rendah',
+            //             ],
+            //             [
+            //                 'variabel_id' => 8,
+            //                 'himpunan' => 'Sedang',
+            //             ],
+            //             [
+            //                 'variabel_id' => 8,
+            //                 'himpunan' => 'Layak/Tinggi',
+            //             ],
+            //             [
+            //                 'variabel_id' => 9,
+            //                 'himpunan' => 'Tidak Layak/Rendah',
+            //             ],
+            //             [
+            //                 'variabel_id' => 9,
+            //                 'himpunan' => 'Sedang',
+            //             ],
+            //             [
+            //                 'variabel_id' => 9,
+            //                 'himpunan' => 'Layak/Tinggi',
+            //             ],
+            //             [
+            //                 'variabel_id' => 10,
+            //                 'himpunan' => 'Tidak Layak/Rendah',
+            //             ],
+            //             [
+            //                 'variabel_id' => 10,
+            //                 'himpunan' => 'Sedang',
+            //             ],
+            //             [
+            //                 'variabel_id' => 10,
+            //                 'himpunan' => 'Layak/Tinggi',
+            //             ],
+            //         ];
+            //         foreach ($dummy as $key => $item) {
+            //              Himpunan::create([
+            //                 'variabel_id' => $item['variabel_id'],
+            //                 'himpunan' => $item['himpunan'],
+            //             ]);
+            //         }
             try {
                 $request->validate([
                     'variabel_id' => 'required',
@@ -100,7 +178,6 @@ class HimpunanController extends Controller
         $title = 'Edit Data Himpunan';
         return view('admin.himpunan.form', compact('data', 'title', 'variabel'));
         }
-
     }
 
     /**
